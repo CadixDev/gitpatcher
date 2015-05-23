@@ -21,20 +21,53 @@
  */
 package net.minecrell.gitpatcher
 
+import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
+import net.minecrell.gitpatcher.task.patch.ApplyPatchesTask
+import net.minecrell.gitpatcher.task.patch.MakePatchesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class GitPatcher implements Plugin<Project> {
 
-    private Project project
+    protected Project project
+    protected PatchExtension extension
 
     @Override
     void apply(Project project) {
         this.project = project
+        project.with {
+            this.extension = extensions.create('patches', PatchExtension)
+            extension.root = projectDir
+
+            task('updateSubmodules', type: UpdateSubmodulesTask)
+            task('applyPatches', type: ApplyPatchesTask) {
+                dependsOn 'updateSubmodules'
+            }
+            task('makePatches', type: MakePatchesTask)
+
+            afterEvaluate {
+                // Configure the settings from our extension
+                configure([tasks.applyPatches, tasks.makePatches]) {
+                    repo = extension.target
+                    root = extension.root
+                    submodule = extension.submodule
+                    patchDir = extension.patches
+                }
+
+                tasks.updateSubmodules.with {
+                    repo = extension.root
+                    submodule = extension.submodule
+                }
+            }
+        }
     }
 
     Project getProject() {
-        project
+        return project
+    }
+
+    PatchExtension getExtension() {
+        return extension
     }
 
 }
