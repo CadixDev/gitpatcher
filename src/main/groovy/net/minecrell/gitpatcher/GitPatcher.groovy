@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.minecrell.pitcher
+package net.minecrell.gitpatcher
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class Pitcher implements Plugin<Project> {
+class GitPatcher implements Plugin<Project> {
 
     private Project project
 
