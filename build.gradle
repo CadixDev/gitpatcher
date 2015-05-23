@@ -1,0 +1,67 @@
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+
+    id 'eclipse'
+    id 'idea'
+
+    id 'com.github.hierynomus.license' version '0.11.0'
+}
+
+group = 'net.minecrell'
+version = '0.1-SNAPSHOT'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile('org.eclipse.jgit:org.eclipse.jgit:3.7.1.201504261725-r') {
+        // These are included in the Gradle distribution, no need to download them
+        exclude group: 'com.jcraft', module: 'jsch'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+}
+
+license {
+    header file('LICENSE')
+    include '**/*.java'
+    include '**/*.groovy'
+
+    strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar
+
+            repositories {
+                maven {
+                    url = System.getenv('REPO_' + (version.endsWith('-SNAPSHOT') ? 'SNAPSHOTS' : 'RELEASES')) ?: "$buildDir/repo"
+                }
+            }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
