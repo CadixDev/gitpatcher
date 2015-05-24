@@ -74,6 +74,8 @@ class MailPatch {
                 continue
             }
 
+            line = line.trim()
+
             if (line.startsWith('diff')) {
                 break
             }
@@ -97,7 +99,9 @@ class MailPatch {
                         builder = new StringBuilder(StringUtils.removeStart(content, '[PATCH] '))
                 }
             } else {
-                builder << line.trim()
+                if (!line.empty) {
+                    builder << '\n' << line
+                }
             }
         }
 
@@ -143,7 +147,8 @@ class MailPatch {
         dateFormat.printTo writer, new DateTime(commit.authorIdent.getWhen(), DateTimeZone.forTimeZone(commit.authorIdent.timeZone))
         writer << '\n'
 
-        writer << 'Subject: [PATCH] ' << commit.fullMessage << '\n\n\n'
+        def message = commit.fullMessage
+        writer << 'Subject: [PATCH] ' << message << (message.endsWith('\n') ? '\n\n' : '\n\n\n')
         writer.flush()
     }
 
