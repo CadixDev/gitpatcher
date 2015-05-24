@@ -30,6 +30,9 @@ import static org.eclipse.jgit.submodule.SubmoduleWalk.getSubmoduleRepository
 
 import net.minecrell.gitpatcher.git.MailPatch
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.InvalidRemoteException
+import org.eclipse.jgit.transport.RemoteConfig
+import org.eclipse.jgit.transport.URIish
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
@@ -65,11 +68,14 @@ class ApplyPatchesTask extends PatchTask {
                     .call()
         }
 
+        def gitDir = new File(repo, '.git')
         Git git
-        if (repo.isDirectory()) {
+        if (gitDir.isDirectory() && gitDir.list().length > 0) {
             git = Git.open(repo)
         } else {
             logger.lifecycle 'Creating {} repository...', repo
+
+            assert repo.deleteDir()
 
             git = Git.cloneRepository()
                     .setURI(source.toURI().toString())
@@ -80,7 +86,21 @@ class ApplyPatchesTask extends PatchTask {
         withGit(git) {
             logger.lifecycle 'Resetting {}...', repo
 
-            fetch().setRemote('origin').call()
+            try {
+                fetch().setRemote('origin').call()
+            } catch (InvalidRemoteException e) {
+                // Reset remote (maybe it was changed or something)
+                def config = new RemoteConfig(repository.getConfig(), 'origin')
+                for (URIish uri : config.getURIs().toArray()) {
+                    config.removeURI(uri)
+                }
+                config.addURI(new URIish(source.toURI().toString()))
+                config.update(repository.getConfig())
+
+                // Fetch again
+                fetch().setRemote('origin').call()
+            }
+
 
             if (repository.getRef('master') == null) {
                 // Create the master branch
