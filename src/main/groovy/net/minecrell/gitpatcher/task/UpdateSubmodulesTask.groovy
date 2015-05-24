@@ -38,7 +38,7 @@ class UpdateSubmodulesTask extends SubmoduleTask {
                 return
             }
 
-            if (status.type == SubmoduleStatusType.MISSING) {
+            if (status.type == SubmoduleStatusType.MISSING || status.type == SubmoduleStatusType.UNINITIALIZED) {
                 submoduleInit().addPath(submodule).call()
             } else if (status.type == SubmoduleStatusType.REV_CHECKED_OUT) {
                 logger.warn "Resetting submodule \"{}\" from {} back to {}", submodule, status.headId, status.indexId
