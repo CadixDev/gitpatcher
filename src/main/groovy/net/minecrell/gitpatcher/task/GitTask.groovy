@@ -27,4 +27,8 @@ abstract class GitTask extends DefaultTask {
 
     File repo
 
+    protected File getIndexFile() {
+        return new File(new File(repo, '.git'), 'index')
+    }
+
 }

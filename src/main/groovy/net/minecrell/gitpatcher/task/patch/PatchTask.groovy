@@ -22,13 +22,18 @@
 package net.minecrell.gitpatcher.task.patch
 
 import net.minecrell.gitpatcher.task.SubmoduleTask
-import org.gradle.api.tasks.InputDirectory
+import org.apache.commons.lang.StringUtils
 
 abstract class PatchTask extends SubmoduleTask {
 
     File root
 
-    @InputDirectory
     File patchDir
+
+    protected File[] getPatches() {
+        return patchDir.listFiles({ dir, name ->
+            name.endsWith('.patch') && StringUtils.isNumeric(name.substring(0, 4))
+        } as FilenameFilter).sort()
+    }
 
 }

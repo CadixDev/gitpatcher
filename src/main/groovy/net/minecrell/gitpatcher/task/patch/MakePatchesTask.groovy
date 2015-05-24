@@ -28,21 +28,41 @@ import net.minecrell.gitpatcher.git.MailPatch
 import net.minecrell.gitpatcher.git.Patcher
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.patch.Patch
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 class MakePatchesTask extends PatchTask {
+
+    @Override @InputDirectory
+    File getRepo() {
+        return super.getRepo()
+    }
+
+    @Override @InputFile
+    File getIndexFile() {
+        return super.getIndexFile()
+    }
+
+    @Override @OutputDirectory
+    File getPatchDir() {
+        return super.getPatchDir()
+    }
 
     @TaskAction
     void makePatches() {
         File[] patches
         if (patchDir.isDirectory()) {
-            patches = Patcher.findPatches(patchDir)
+            patches = this.patches
         } else {
             assert patchDir.mkdirs(), 'Failed to create patch directory'
             patches = null
         }
 
         openGit(repo) {
+            didWork = false
+
             def i = 0
             for (def commit : log(it, 'origin/upstream')) {
                 def out = new File(patchDir, Patcher.suggestFileName(commit, i+1))
@@ -90,6 +110,7 @@ class MakePatchesTask extends PatchTask {
 
 
                 logger.lifecycle 'Generating patch: {}', out.name
+                didWork = true
 
                 out.createNewFile()
                 out.withOutputStream {

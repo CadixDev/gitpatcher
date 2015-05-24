@@ -27,7 +27,6 @@ import static org.eclipse.jgit.revwalk.RevSort.TOPO
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.FirstParam
 import groovy.transform.stc.SimpleType
-import org.apache.commons.lang.StringUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.revwalk.RevCommit
@@ -58,12 +57,6 @@ final class Patcher {
         walk.sort(TOPO)
         walk.sort(REVERSE, true)
         return walk
-    }
-
-    static File[] findPatches(File patchDir) {
-        return patchDir.listFiles({ dir, name ->
-            name.endsWith('.patch') && StringUtils.isNumeric(name.substring(0, 4))
-        } as FilenameFilter).sort()
     }
 
     static String suggestFileName(RevCommit commit, int num) {

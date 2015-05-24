@@ -27,11 +27,28 @@ import static org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import static org.eclipse.jgit.submodule.SubmoduleWalk.getSubmoduleRepository
 
 import net.minecrell.gitpatcher.git.MailPatch
-import net.minecrell.gitpatcher.git.Patcher
 import org.eclipse.jgit.api.Git
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ApplyPatchesTask extends PatchTask {
+
+    @Override @InputFiles
+    File[] getPatches() {
+        return super.getPatches()
+    }
+
+    @Override @OutputDirectory
+    File getRepo() {
+        return super.getRepo()
+    }
+
+    @Override @OutputFile
+    File getIndexFile() {
+        return super.getIndexFile()
+    }
 
     @TaskAction
     void applyPatches() {
@@ -73,7 +90,7 @@ class ApplyPatchesTask extends PatchTask {
             if (patchDir.isDirectory()) {
                 logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
 
-                for (def file : Patcher.findPatches(patchDir)) {
+                for (def file : patches) {
                     logger.lifecycle 'Applying: {}', file.name
 
                     def data = new ByteArrayInputStream(file.bytes)
