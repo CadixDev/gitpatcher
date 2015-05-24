@@ -21,6 +21,8 @@
  */
 package net.minecrell.gitpatcher.task.patch
 
+import static java.lang.Boolean.parseBoolean
+import static java.lang.System.getProperty
 import static net.minecrell.gitpatcher.git.Patcher.withGit
 import static org.eclipse.jgit.api.Git.wrap
 import static org.eclipse.jgit.api.ResetCommand.ResetType.HARD
@@ -34,6 +36,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ApplyPatchesTask extends PatchTask {
+
+    private static final boolean JGIT_APPLY = parseBoolean(getProperty("jgit.apply", "true"))
 
     @Override @InputFiles
     File[] getPatches() {
@@ -90,23 +94,38 @@ class ApplyPatchesTask extends PatchTask {
             if (patchDir.isDirectory()) {
                 logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
 
+                if (!JGIT_APPLY) {
+                    ['git', 'am', '--abort'].execute(null as String[], repo).waitFor()
+                }
+
                 for (def file : patches) {
-                    logger.lifecycle 'Applying: {}', file.name
+                    if (JGIT_APPLY) {
+                        logger.lifecycle 'Applying: {}', file.name
 
-                    def data = new ByteArrayInputStream(file.bytes)
-                    def patch = MailPatch.parseHeader(data)
-                    data.reset()
+                        def data = new ByteArrayInputStream(file.bytes)
+                        def patch = MailPatch.parseHeader(data)
+                        data.reset()
 
-                    apply().setPatch(data).call()
-                    commit().setAuthor(patch.author)
-                            .setMessage(patch.message)
-                            .setAll(true)
-                            .call()
+                        apply().setPatch(data).call()
+                        commit().setAuthor(patch.author)
+                                .setMessage(patch.message)
+                                .setAll(true)
+                                .call()
+                    } else {
+                        def p = ['git', 'am', '--3way', file.absolutePath].execute(null as String[], repo)
+                        p.consumeProcessOutput(System.out as OutputStream, System.err)
+                        def r = p.waitFor()
+                        assert r == 0, "Process returned error code $r"
+                    }
                 }
 
                 logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
             }
         }
+    }
+
+    private static void exec(List<String> command, File workingDir) {
+        command.execute(null as String[], workingDir).consumeProcessOutput()
     }
 
 }
