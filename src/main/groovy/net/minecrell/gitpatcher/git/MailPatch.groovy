@@ -55,11 +55,15 @@ class MailPatch {
         return author == commit.authorIdent && message == commit.fullMessage
     }
 
-    static MailPatch parse(InputStream is) {
-        return parse(is.newReader('UTF-8'))
+    static MailPatch parseHeader(byte[] data) {
+        return parseHeader(new ByteArrayInputStream(data))
     }
 
-    static MailPatch parse(BufferedReader reader) {
+    static MailPatch parseHeader(InputStream is) {
+        return parseHeader(is.newReader('UTF-8'))
+    }
+
+    static MailPatch parseHeader(BufferedReader reader) {
         String from = null
         String time = null
         StringBuilder builder = null
@@ -149,25 +153,14 @@ class MailPatch {
 
         def formatter = new DiffFormatter(out)
         formatter.repository = repo
-        formatter.format(commit.getParent(0).tree, commit.tree)
+        try {
+            Patcher.formatPatch(formatter, commit)
+        } finally {
+            formatter.release()
+        }
 
         writer << '-- \n' << JGIT_VERSION << '\n'
         writer.flush()
-    }
-
-
-    static String suggestFileName(RevCommit commit, int num) {
-        def result = new StringBuilder(String.format("%04d-", num))
-        for (char c : commit.shortMessage.chars) {
-            if (Character.isLetter(c) || Character.isDigit(c)) {
-                result << c
-            } else if (Character.isWhitespace(c) || c == '/' as char) {
-                result << '-' as char
-            }
-        }
-
-        result << '.patch'
-        return result.toString()
     }
 
 }

@@ -25,30 +25,84 @@ import static net.minecrell.gitpatcher.git.Patcher.log
 import static net.minecrell.gitpatcher.git.Patcher.openGit
 
 import net.minecrell.gitpatcher.git.MailPatch
-import org.apache.commons.io.FileUtils
+import net.minecrell.gitpatcher.git.Patcher
+import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.patch.Patch
 import org.gradle.api.tasks.TaskAction
 
 class MakePatchesTask extends PatchTask {
 
     @TaskAction
     void makePatches() {
+        File[] patches
         if (patchDir.isDirectory()) {
-            FileUtils.cleanDirectory(patchDir)
+            patches = Patcher.findPatches(patchDir)
         } else {
-            assert patchDir.mkdirs()
+            assert patchDir.mkdirs(), 'Failed to create patch directory'
+            patches = null
         }
 
         openGit(repo) {
-            def counter = 0
+            def i = 0
             for (def commit : log(it, 'origin/upstream')) {
-                counter++
+                def out = new File(patchDir, Patcher.suggestFileName(commit, i+1))
 
-                def out = new File(patchDir, MailPatch.suggestFileName(commit, counter))
+                if (patches != null && i < patches.length) {
+                    def current = patches[i]
+                    if (out == current) {
+                        // The patches are possibly the same - continue checking
+                        def bytes = current.bytes
+                        def header = MailPatch.parseHeader(bytes)
+
+                        if (header.represents(commit)) {
+                            def diff = new ByteArrayOutputStream(current.bytes.length)
+                            def formatter = new DiffFormatter(diff)
+                            formatter.repository = repository
+
+                            try {
+                                // The commit header is the same, now check the diff
+                                def patch = new Patch()
+                                patch.parse(bytes, 0, bytes.length)
+
+                                formatter.format(patch.files)
+                                def currentDiff = diff.toByteArray()
+
+                                diff.reset()
+                                Patcher.formatPatch(formatter, commit)
+                                def newDiff = diff.toByteArray()
+
+                                if (currentDiff == newDiff) {
+                                    // The patches are identical, we can skip this
+                                    logger.lifecycle 'Skipping patch: {} (up-to-date)', current.name
+                                    i++
+                                    continue
+                                }
+                            } finally {
+                                formatter.release()
+                            }
+
+                        }
+                    } else {
+                        // Delete the old patch
+                        assert current.delete(), 'Failed to delete patch'
+                    }
+                }
+
+
                 logger.lifecycle 'Generating patch: {}', out.name
 
-                assert out.createNewFile()
+                out.createNewFile()
                 out.withOutputStream {
                     MailPatch.writePatch(repository, commit, it)
+                }
+
+                i++
+            }
+
+            // Delete patches that don't exist anymore
+            if (patches != null && i < patches.length) {
+                for (; i < patches.length; i++) {
+                    assert patches[i].delete(), 'Failed to delete patch'
                 }
             }
         }

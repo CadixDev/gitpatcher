@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'net.minecrell'
-version = '0.1.1'
+version = '0.2-SNAPSHOT'
 description = 'A Gradle plugin to manage patches for Git repositories'
 
 sourceCompatibility = 1.6

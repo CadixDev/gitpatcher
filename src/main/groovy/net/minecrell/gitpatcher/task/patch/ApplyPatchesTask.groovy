@@ -23,9 +23,11 @@ package net.minecrell.gitpatcher.task.patch
 
 import static net.minecrell.gitpatcher.git.Patcher.withGit
 import static org.eclipse.jgit.api.Git.wrap
+import static org.eclipse.jgit.api.ResetCommand.ResetType.HARD
 import static org.eclipse.jgit.submodule.SubmoduleWalk.getSubmoduleRepository
 
 import net.minecrell.gitpatcher.git.MailPatch
+import net.minecrell.gitpatcher.git.Patcher
 import org.eclipse.jgit.api.Git
 import org.gradle.api.tasks.TaskAction
 
@@ -58,30 +60,35 @@ class ApplyPatchesTask extends PatchTask {
             logger.lifecycle 'Resetting {}...', repo
 
             fetch().setRemote('origin').call()
-            branchCreate()
-                    .setName('master')
-                    .setForce(true)
-                    .setStartPoint('origin/upstream')
-                    .call()
-            clean().setCleanDirectories(true).call()
 
-            logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
-
-            for (def file : patchDir.listFiles({ dir, name -> name.endsWith('.patch')  } as FilenameFilter).sort()) {
-                logger.lifecycle 'Applying: {}', file.name
-
-                def data = new ByteArrayInputStream(file.bytes)
-                def patch = MailPatch.parse(data)
-                data.reset()
-
-                apply().setPatch(data).call()
-                commit().setAuthor(patch.author)
-                        .setMessage(patch.message)
-                        .setAll(true)
-                        .call()
+            if (repository.getRef('master') == null) {
+                // Create the master branch
+                branchCreate().setName('master').call()
             }
 
-            logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
+            checkout().setName('master').call()
+            reset().setMode(HARD).setRef('origin/upstream').call()
+            clean().setCleanDirectories(true).call()
+
+            if (patchDir.isDirectory()) {
+                logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
+
+                for (def file : Patcher.findPatches(patchDir)) {
+                    logger.lifecycle 'Applying: {}', file.name
+
+                    def data = new ByteArrayInputStream(file.bytes)
+                    def patch = MailPatch.parseHeader(data)
+                    data.reset()
+
+                    apply().setPatch(data).call()
+                    commit().setAuthor(patch.author)
+                            .setMessage(patch.message)
+                            .setAll(true)
+                            .call()
+                }
+
+                logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
+            }
         }
     }
 

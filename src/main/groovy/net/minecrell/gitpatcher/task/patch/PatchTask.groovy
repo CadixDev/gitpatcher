@@ -21,14 +21,12 @@
  */
 package net.minecrell.gitpatcher.task.patch
 
-import net.minecrell.gitpatcher.task.GitTask
+import net.minecrell.gitpatcher.task.SubmoduleTask
 import org.gradle.api.tasks.InputDirectory
 
-abstract class PatchTask extends GitTask {
+abstract class PatchTask extends SubmoduleTask {
 
     File root
-
-    String submodule
 
     @InputDirectory
     File patchDir
