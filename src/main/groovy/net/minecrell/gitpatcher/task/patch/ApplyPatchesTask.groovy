@@ -1,6 +1,5 @@
 /*
- * PoreGradle
- * Copyright (c) 2015, Lapis <https://github.com/LapisBlue>
+ * Copyright (c) 2015, Minecrell <https://github.com/Minecrell>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
