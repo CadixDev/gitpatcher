@@ -124,8 +124,4 @@ class ApplyPatchesTask extends PatchTask {
         }
     }
 
-    private static void exec(List<String> command, File workingDir) {
-        command.execute(null as String[], workingDir).consumeProcessOutput()
-    }
-
 }
