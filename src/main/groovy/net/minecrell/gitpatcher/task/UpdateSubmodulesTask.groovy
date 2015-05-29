@@ -21,31 +21,23 @@
  */
 package net.minecrell.gitpatcher.task
 
-import static net.minecrell.gitpatcher.git.Patcher.openGit
+import static java.lang.System.out
 
-import org.eclipse.jgit.submodule.SubmoduleStatus
-import org.eclipse.jgit.submodule.SubmoduleStatusType
+import net.minecrell.gitpatcher.Git
 import org.gradle.api.tasks.TaskAction
 
 class UpdateSubmodulesTask extends SubmoduleTask {
 
     @TaskAction
     void updateSubmodules() {
-        openGit(repo) {
-            SubmoduleStatus status = submoduleStatus().addPath(submodule).call().get(submodule);
-            if (status.type == SubmoduleStatusType.INITIALIZED) {
-                didWork = false
-                return
-            }
-
-            if (status.type == SubmoduleStatusType.MISSING || status.type == SubmoduleStatusType.UNINITIALIZED) {
-                submoduleInit().addPath(submodule).call()
-            } else if (status.type == SubmoduleStatusType.REV_CHECKED_OUT) {
-                logger.warn "Resetting submodule \"{}\" from {} back to {}", submodule, status.headId, status.indexId
-            }
-
-            submoduleUpdate().addPath(submodule).call()
+        def git = new Git(repo)
+        def result = git.submodule('status', '--', submodule) as String
+        if (result.startsWith(' ')) {
+            didWork = false
+            return
         }
+
+        git.submodule('update', '--init', '--recursive') >> out
     }
 
 }

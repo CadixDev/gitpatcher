@@ -21,26 +21,15 @@
  */
 package net.minecrell.gitpatcher.task.patch
 
-import static java.lang.Boolean.parseBoolean
-import static java.lang.System.getProperty
-import static net.minecrell.gitpatcher.git.Patcher.withGit
-import static org.eclipse.jgit.api.Git.wrap
-import static org.eclipse.jgit.api.ResetCommand.ResetType.HARD
-import static org.eclipse.jgit.submodule.SubmoduleWalk.getSubmoduleRepository
+import static java.lang.System.out
 
-import net.minecrell.gitpatcher.git.MailPatch
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.errors.InvalidRemoteException
-import org.eclipse.jgit.transport.RemoteConfig
-import org.eclipse.jgit.transport.URIish
+import net.minecrell.gitpatcher.Git
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ApplyPatchesTask extends PatchTask {
-
-    private static final boolean JGIT_APPLY = parseBoolean(getProperty("jgit.apply", "true"))
 
     @Override @InputFiles
     File[] getPatches() {
@@ -59,89 +48,34 @@ class ApplyPatchesTask extends PatchTask {
 
     @TaskAction
     void applyPatches() {
-        File source = null
-        withGit(wrap(getSubmoduleRepository(root, submodule))) {
-            source = repository.directory
-            branchCreate()
-                    .setName('upstream')
-                    .setForce(true)
-                    .call()
-        }
+        def git = new Git(submoduleRoot)
+        git.branch('-f', 'upstream') >> null
 
         def gitDir = new File(repo, '.git')
-        Git git
-        if (gitDir.isDirectory() && gitDir.list().length > 0) {
-            git = Git.open(repo)
-        } else {
+        if (!gitDir.isDirectory() || gitDir.list().length == 0) {
             logger.lifecycle 'Creating {} repository...', repo
 
-            assert repo.deleteDir()
-
-            git = Git.cloneRepository()
-                    .setURI(source.toURI().toString())
-                    .setDirectory(repo)
-                    .call()
+            assert gitDir.deleteDir()
+            git.repo = root
+            git.clone('--recursive', submodule, repo.absolutePath, '-b', 'upstream') >> out
         }
 
-        withGit(git) {
-            logger.lifecycle 'Resetting {}...', repo
+        logger.lifecycle 'Resetting {}...', repo
 
-            try {
-                fetch().setRemote('origin').call()
-            } catch (InvalidRemoteException e) {
-                // Reset remote (maybe it was changed or something)
-                def config = new RemoteConfig(repository.getConfig(), 'origin')
-                for (URIish uri : config.getURIs().toArray()) {
-                    config.removeURI(uri)
-                }
-                config.addURI(new URIish(source.toURI().toString()))
-                config.update(repository.getConfig())
+        git.repo = repo
+        git.fetch('origin') >> null
+        git.checkout('-B', 'master', 'origin/master') >> null
+        git.reset('--hard') >> out
 
-                // Fetch again
-                fetch().setRemote('origin').call()
-            }
+        if (patchDir.isDirectory()) {
+            logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
 
+            git.am('--abort') >>> null
+            git.am('--3way', *patches.collect { it.absolutePath }) >> out
 
-            if (repository.getRef('master') == null) {
-                // Create the master branch
-                branchCreate().setName('master').call()
-            }
-
-            checkout().setName('master').call()
-            reset().setMode(HARD).setRef('origin/upstream').call()
-            clean().setCleanDirectories(true).call()
-
-            if (patchDir.isDirectory()) {
-                logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
-
-                if (!JGIT_APPLY) {
-                    ['git', 'am', '--abort'].execute(null as String[], repo).waitFor()
-                }
-
-                for (def file : patches) {
-                    if (JGIT_APPLY) {
-                        logger.lifecycle 'Applying: {}', file.name
-
-                        def data = new ByteArrayInputStream(file.bytes)
-                        def patch = MailPatch.parseHeader(data)
-                        data.reset()
-
-                        apply().setPatch(data).call()
-                        commit().setAuthor(patch.author)
-                                .setMessage(patch.message)
-                                .setAll(true)
-                                .call()
-                    } else {
-                        def p = ['git', 'am', '--3way', file.absolutePath].execute(null as String[], repo)
-                        p.consumeProcessOutput(System.out as OutputStream, System.err)
-                        def r = p.waitFor()
-                        assert r == 0, "Process returned error code $r"
-                    }
-                }
-
-                logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
-            }
+            logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
         }
+
     }
 
 }

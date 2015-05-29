@@ -22,7 +22,6 @@
 package net.minecrell.gitpatcher.task.patch
 
 import net.minecrell.gitpatcher.task.SubmoduleTask
-import org.apache.commons.lang.StringUtils
 
 abstract class PatchTask extends SubmoduleTask {
 
@@ -31,9 +30,11 @@ abstract class PatchTask extends SubmoduleTask {
     File patchDir
 
     protected File[] getPatches() {
-        return patchDir.listFiles({ dir, name ->
-            name.endsWith('.patch') && StringUtils.isNumeric(name.substring(0, 4))
-        } as FilenameFilter).sort()
+        return patchDir.listFiles({ dir, name -> name.endsWith('.patch') } as FilenameFilter).sort()
+    }
+
+    File getSubmoduleRoot() {
+        return new File(root, submodule)
     }
 
 }

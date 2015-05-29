@@ -1,6 +1,7 @@
 # gitpatcher
 gitpatcher is a Gradle plugin that can manage patches for Git repositories for you ([example]). This is useful if you need a few smaller changes for a Git repository that can't be contributed upstream, but you still easily want to keep up to date with upstream.
-gitpatcher manages a local submodule as base, and applies patches from a configurable folder in an extra repository. It runs fully on Java using [jgit].
+gitpatcher manages a local submodule as base, and applies patches from a configurable folder in an extra repository. A local Git installation on 
+the PATH is required for it to run.
 
 # Installation
 1. Add a submodule for the project you want to patch.
@@ -33,4 +34,3 @@ gitpatcher manages a local submodule as base, and applies patches from a configu
 |`makePatches`|Creates or updates the patches in the patch folder.|
 
 [example]: https://github.com/LapisBlue/Pore/tree/master/patches
-[jgit]: https://eclipse.org/jgit/

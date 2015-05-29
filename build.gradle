@@ -12,25 +12,14 @@ plugins {
 }
 
 group = 'net.minecrell'
-version = '0.4.3'
+version = '0.5-SNAPSHOT'
 description = 'A Gradle plugin to manage patches for Git repositories'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile localGroovy()
-
-    compile('org.eclipse.jgit:org.eclipse.jgit:3.7.1.201504261725-r') {
-        // These are included in the Gradle distribution, no need to download them
-        exclude group: 'com.jcraft', module: 'jsch'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
 }
 
 license {

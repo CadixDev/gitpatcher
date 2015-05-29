@@ -21,19 +21,17 @@
  */
 package net.minecrell.gitpatcher.task.patch
 
-import static net.minecrell.gitpatcher.git.Patcher.log
-import static net.minecrell.gitpatcher.git.Patcher.openGit
+import static java.lang.System.out
 
-import net.minecrell.gitpatcher.git.MailPatch
-import net.minecrell.gitpatcher.git.Patcher
-import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.patch.Patch
+import net.minecrell.gitpatcher.Git
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 class MakePatchesTask extends PatchTask {
+
+    private static final Closure HUNK = { it.startsWith('@@') }
 
     @Override @InputDirectory
     File getRepo() {
@@ -52,80 +50,39 @@ class MakePatchesTask extends PatchTask {
 
     @TaskAction
     void makePatches() {
-        File[] patches
         if (patchDir.isDirectory()) {
-            patches = this.patches
+            def patches = this.patches
+            if (patches) {
+                assert patches*.delete(), 'Failed to delete old patch'
+            }
         } else {
             assert patchDir.mkdirs(), 'Failed to create patch directory'
-            patches = null
         }
 
-        openGit(repo) {
-            didWork = false
+        def git = new Git(repo)
+        git.format_patch('--no-stat', '-N', '-o', patchDir.absolutePath, 'origin/upstream') >> null
 
-            def i = 0
-            for (def commit : log(it, 'origin/upstream')) {
-                def out = new File(patchDir, Patcher.suggestFileName(commit, i+1))
+        git.repo = root
+        git.add('-A', patchDir.absolutePath) >> out
 
-                if (patches != null && i < patches.length) {
-                    def current = patches[i]
-                    if (out == current) {
-                        // The patches are possibly the same - continue checking
-                        def bytes = current.bytes
-                        def header = MailPatch.parseHeader(bytes)
-
-                        if (header.represents(commit)) {
-                            def diff = new ByteArrayOutputStream(current.bytes.length)
-                            def formatter = new DiffFormatter(diff)
-                            formatter.repository = repository
-
-                            try {
-                                // The commit header is the same, now check the diff
-                                def patch = new Patch()
-                                patch.parse(bytes, 0, bytes.length)
-
-                                formatter.format(patch.files)
-                                def currentDiff = diff.toByteArray()
-
-                                diff.reset()
-                                Patcher.formatPatch(formatter, commit)
-                                def newDiff = diff.toByteArray()
-
-                                if (currentDiff == newDiff) {
-                                    // The patches are identical, we can skip this
-                                    logger.lifecycle 'Skipping patch: {} (up-to-date)', current.name
-                                    i++
-                                    continue
-                                }
-                            } finally {
-                                formatter.release()
-                            }
-
-                        }
-                    } else {
-                        // Delete the old patch
-                        assert current.delete(), 'Failed to delete patch'
+        didWork = false
+        for (def patch : patches) {
+            def diff = (git.diff('--no-color', '-U1', '--staged', patch.absolutePath) as String).readLines()
+            def first = diff.findIndexOf(HUNK)
+            if (first >= 0 && diff[first + 1].startsWith('From', 1)) {
+                def last = diff.findLastIndexOf(HUNK)
+                if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
+                    if (!diff.subList(first + 4, last).find(HUNK)) {
+                        logger.lifecycle 'Skipping {} (up-to-date)', patch.name
+                        git.reset('HEAD', patch.absolutePath) >> null
+                        git.checkout('--', patch.absolutePath) >> null
+                        continue
                     }
                 }
-
-
-                logger.lifecycle 'Generating patch: {}', out.name
-                didWork = true
-
-                out.createNewFile()
-                out.withOutputStream {
-                    MailPatch.writePatch(repository, commit, it)
-                }
-
-                i++
             }
 
-            // Delete patches that don't exist anymore
-            if (patches != null && i < patches.length) {
-                for (; i < patches.length; i++) {
-                    assert patches[i].delete(), 'Failed to delete patch'
-                }
-            }
+            didWork = true
+            logger.lifecycle 'Generating {}', patch.name
         }
     }
 
