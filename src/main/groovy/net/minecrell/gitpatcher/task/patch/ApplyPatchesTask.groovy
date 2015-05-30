@@ -64,7 +64,7 @@ class ApplyPatchesTask extends PatchTask {
 
         git.repo = repo
         git.fetch('origin') >> null
-        git.checkout('-B', 'master', 'origin/master') >> null
+        git.checkout('-B', 'master', 'origin/upstream') >> null
         git.reset('--hard') >> out
 
         if (patchDir.isDirectory()) {
