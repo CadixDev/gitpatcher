@@ -71,13 +71,20 @@ class MakePatchesTask extends PatchTask {
             def first = diff.findIndexOf(HUNK)
             if (first >= 0 && diff[first + 1].startsWith('From', 1)) {
                 def last = diff.findLastIndexOf(HUNK)
-                if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
+                boolean upToDate = false
+                if (first == last) { // There is just one hunk, so probably just the hash changed
+                    upToDate = true
+                } else if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
                     if (!diff.subList(first + 4, last).find(HUNK)) {
-                        logger.lifecycle 'Skipping {} (up-to-date)', patch.name
-                        git.reset('HEAD', patch.absolutePath) >> null
-                        git.checkout('--', patch.absolutePath) >> null
-                        continue
+                        upToDate = true
                     }
+                }
+
+                if (upToDate) {
+                    logger.lifecycle 'Skipping {} (up-to-date)', patch.name
+                    git.reset('HEAD', patch.absolutePath) >> null
+                    git.checkout('--', patch.absolutePath) >> null
+                    continue
                 }
             }
 
