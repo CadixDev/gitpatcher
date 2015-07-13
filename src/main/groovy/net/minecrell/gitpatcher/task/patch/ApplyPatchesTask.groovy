@@ -42,8 +42,19 @@ class ApplyPatchesTask extends PatchTask {
     }
 
     @Override @OutputFile
-    File getIndexFile() {
-        return super.getIndexFile()
+    File getRefCache() {
+        return super.getRefCache()
+    }
+
+    {
+        outputs.upToDateWhen {
+            if (!repo.directory) {
+                return false
+            }
+
+            def git = new Git(repo)
+            return git.status.empty && cachedRef == git.ref
+        }
     }
 
     @TaskAction
@@ -76,6 +87,7 @@ class ApplyPatchesTask extends PatchTask {
             logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
         }
 
+        refCache.text = git.ref
     }
 
 }

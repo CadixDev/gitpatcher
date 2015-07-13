@@ -34,9 +34,21 @@ class Git {
         assert repo.exists()
     }
 
+    String getStatus() {
+        return run('status', ['-z']) as String
+    }
+
+    String getRef() {
+        return show_ref('-s', 'HEAD') as String
+    }
+
+    Command run(String name, Object input) {
+        return new Command(['git', name.replace('_' as char, '-' as char), *input].execute(null as String[], repo))
+    }
+
     @Override
     Command invokeMethod(String name, Object input) {
-        return new Command(['git', name.replace('_' as char, '-' as char), *input].execute(null as String[], repo))
+        return run(name, input)
     }
 
     static class Command {

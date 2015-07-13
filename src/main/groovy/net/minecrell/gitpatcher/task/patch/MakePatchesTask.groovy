@@ -39,13 +39,24 @@ class MakePatchesTask extends PatchTask {
     }
 
     @Override @InputFile
-    File getIndexFile() {
-        return super.getIndexFile()
+    File getRefCache() {
+        return super.getRefCache()
     }
 
     @Override @OutputDirectory
     File getPatchDir() {
         return super.getPatchDir()
+    }
+
+    {
+        outputs.upToDateWhen {
+            if (!repo.directory) {
+                return false
+            }
+
+            def git = new Git(repo)
+            return cachedRef == git.ref
+        }
     }
 
     @TaskAction
