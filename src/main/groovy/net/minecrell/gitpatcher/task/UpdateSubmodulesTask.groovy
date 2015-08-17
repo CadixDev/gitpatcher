@@ -28,16 +28,25 @@ import org.gradle.api.tasks.TaskAction
 
 class UpdateSubmodulesTask extends SubmoduleTask {
 
+    private String ref
+
     @TaskAction
     void updateSubmodules() {
         def git = new Git(repo)
         def result = git.submodule('status', '--', submodule) as String
+
+        this.ref = result[1 .. result.indexOf(' ', 1) - 1]
+
         if (result.startsWith(' ')) {
             didWork = false
             return
         }
 
         git.submodule('update', '--init', '--recursive') >> out
+    }
+
+    String getRef() {
+        ref
     }
 
 }

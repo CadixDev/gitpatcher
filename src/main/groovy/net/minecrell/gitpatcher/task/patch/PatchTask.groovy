@@ -21,6 +21,7 @@
  */
 package net.minecrell.gitpatcher.task.patch
 
+import com.google.common.collect.ImmutableList
 import net.minecrell.gitpatcher.task.SubmoduleTask
 
 abstract class PatchTask extends SubmoduleTask {
@@ -45,8 +46,30 @@ abstract class PatchTask extends SubmoduleTask {
         return new File(gitDir, '.gitpatcher_ref')
     }
 
+    private List<String> cachedRefs
+
+    private void readCache() {
+        if (cachedRefs == null) {
+            File refCache = this.refCache
+            if (refCache.file) {
+                this.cachedRefs = ImmutableList.copyOf refCache.readLines().findResults {
+                    def trimmed = it.trim()
+                    !trimmed.empty && !trimmed.startsWith('#') ? trimmed : null
+                }
+            } else {
+                this.cachedRefs = ImmutableList.of()
+            }
+        }
+    }
+
     String getCachedRef() {
-        return refCache.file ? refCache.text : null
+        readCache()
+        return cachedRefs[0]
+    }
+
+    String getCachedSubmoduleRef() {
+        readCache()
+        return cachedRefs[1]
     }
 
 }

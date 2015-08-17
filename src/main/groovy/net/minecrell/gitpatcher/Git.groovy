@@ -39,7 +39,7 @@ class Git {
     }
 
     String getRef() {
-        return show_ref('-s', 'HEAD') as String
+        return (rev_parse('HEAD') as String).readLines().first().trim()
     }
 
     Command run(String name, Object input) {

@@ -24,12 +24,15 @@ package net.minecrell.gitpatcher.task.patch
 import static java.lang.System.out
 
 import net.minecrell.gitpatcher.Git
+import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ApplyPatchesTask extends PatchTask {
+
+    UpdateSubmodulesTask updateTask
 
     @Override @InputFiles
     File[] getPatches() {
@@ -53,7 +56,7 @@ class ApplyPatchesTask extends PatchTask {
             }
 
             def git = new Git(repo)
-            return git.status.empty && cachedRef == git.ref
+            return git.status.empty && cachedRef == git.ref && cachedSubmoduleRef == updateTask.ref
         }
     }
 
@@ -87,7 +90,7 @@ class ApplyPatchesTask extends PatchTask {
             logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
         }
 
-        refCache.text = git.ref
+        refCache.text = git.ref + '\n' + updateTask.ref
     }
 
 }
