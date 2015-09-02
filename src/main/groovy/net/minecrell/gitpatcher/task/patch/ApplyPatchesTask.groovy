@@ -88,6 +88,8 @@ class ApplyPatchesTask extends PatchTask {
             git.am('--3way', *patches.collect { it.absolutePath }) >> out
 
             logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
+        } else {
+            assert patchDir.mkdirs(), 'Failed to create patch directory'
         }
 
         refCache.text = git.ref + '\n' + updateTask.ref
