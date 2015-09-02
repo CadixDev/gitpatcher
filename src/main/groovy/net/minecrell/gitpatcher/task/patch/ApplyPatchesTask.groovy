@@ -81,6 +81,10 @@ class ApplyPatchesTask extends PatchTask {
         git.checkout('-B', 'master', 'origin/upstream') >> null
         git.reset('--hard') >> out
 
+        if (!patchDir.exists()) {
+            patchDir.mkdirs();
+        }
+
         if (patchDir.isDirectory()) {
             logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
 
