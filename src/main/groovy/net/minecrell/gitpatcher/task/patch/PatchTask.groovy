@@ -31,6 +31,10 @@ abstract class PatchTask extends SubmoduleTask {
     File patchDir
 
     protected File[] getPatches() {
+        if (!patchDir.directory) {
+            return []
+        }
+
         return patchDir.listFiles({ dir, name -> name.endsWith('.patch') } as FilenameFilter).sort()
     }
 
