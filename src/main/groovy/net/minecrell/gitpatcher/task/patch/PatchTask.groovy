@@ -56,12 +56,12 @@ abstract class PatchTask extends SubmoduleTask {
         if (cachedRefs == null) {
             File refCache = this.refCache
             if (refCache.file) {
-                this.cachedRefs = ImmutableList.copyOf refCache.readLines().findResults {
+                this.cachedRefs = refCache.readLines().findResults {
                     def trimmed = it.trim()
                     !trimmed.empty && !trimmed.startsWith('#') ? trimmed : null
-                }
+                }.asList().asImmutable()
             } else {
-                this.cachedRefs = ImmutableList.of()
+                this.cachedRefs = [].asImmutable()
             }
         }
     }
