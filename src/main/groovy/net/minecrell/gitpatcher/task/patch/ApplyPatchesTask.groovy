@@ -81,15 +81,18 @@ class ApplyPatchesTask extends PatchTask {
         git.checkout('-B', 'master', 'origin/upstream') >> null
         git.reset('--hard') >> out
 
-        if (patchDir.isDirectory()) {
+        if (!patchDir.directory) {
+            assert patchDir.mkdirs(), 'Failed to create patch directory'
+        }
+
+        def patches = this.patches
+        if (patches.length > 0) {
             logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
 
             git.am('--abort') >>> null
             git.am('--3way', *patches.collect { it.absolutePath }) >> out
 
             logger.lifecycle 'Successfully applied patches from {} to {}', patchDir, repo
-        } else {
-            assert patchDir.mkdirs(), 'Failed to create patch directory'
         }
 
         refCache.text = git.ref + '\n' + updateTask.ref
