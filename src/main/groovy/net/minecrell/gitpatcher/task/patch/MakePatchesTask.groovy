@@ -79,28 +79,33 @@ class MakePatchesTask extends PatchTask {
         didWork = false
         for (def patch : patches) {
             def diff = (git.diff('--no-color', '-U1', '--staged', patch.absolutePath) as String).readLines()
-            def first = diff.findIndexOf(HUNK)
-            if (first >= 0 && diff[first + 1].startsWith('From', 1)) {
-                def last = diff.findLastIndexOf(HUNK)
-                boolean upToDate = false
-                if (first == last) { // There is just one hunk, so probably just the hash changed
-                    upToDate = true
-                } else if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
-                    if (!diff.subList(first + 4, last).find(HUNK)) {
-                        upToDate = true
-                    }
-                }
 
-                if (upToDate) {
-                    logger.lifecycle 'Skipping {} (up-to-date)', patch.name
-                    git.reset('HEAD', patch.absolutePath) >> null
-                    git.checkout('--', patch.absolutePath) >> null
-                    continue
+            boolean upToDate = false
+
+            if (diff.empty) {
+                upToDate = true
+            } else if (!diff.contains('--- /dev/null')) {
+                def first = diff.findIndexOf(HUNK)
+                if (first >= 0 && diff[first + 1].startsWith('From', 1)) {
+                    def last = diff.findLastIndexOf(HUNK)
+                    if (first == last) { // There is just one hunk, so probably just the hash changed
+                        upToDate = true
+                    } else if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
+                        if (!diff.subList(first + 4, last).find(HUNK)) {
+                            upToDate = true
+                        }
+                    }
                 }
             }
 
-            didWork = true
-            logger.lifecycle 'Generating {}', patch.name
+            if (upToDate) {
+                logger.lifecycle 'Skipping {} (up-to-date)', patch.name
+                git.reset('HEAD', patch.absolutePath) >> null
+                git.checkout('--', patch.absolutePath) >> null
+            } else {
+                didWork = true
+                logger.lifecycle 'Generating {}', patch.name
+            }
         }
     }
 
