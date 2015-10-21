@@ -22,6 +22,7 @@
 package net.minecrell.gitpatcher
 
 import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
+import net.minecrell.gitpatcher.task.FindGitTask
 import net.minecrell.gitpatcher.task.patch.ApplyPatchesTask
 import net.minecrell.gitpatcher.task.patch.MakePatchesTask
 import org.gradle.api.Plugin
@@ -39,14 +40,15 @@ class GitPatcher implements Plugin<Project> {
             this.extension = extensions.create('patches', PatchExtension)
             extension.root = projectDir
 
-            task('updateSubmodules', type: UpdateSubmodulesTask)
-            task('applyPatches', type: ApplyPatchesTask) {
-                dependsOn 'updateSubmodules'
-            }
-            task('makePatches', type: MakePatchesTask)
+            task('findGit', type: FindGitTask)
+            task('updateSubmodules', type: UpdateSubmodulesTask, dependsOn: 'findGit')
+            task('applyPatches', type: ApplyPatchesTask, dependsOn: 'updateSubmodules')
+            task('makePatches', type: MakePatchesTask, dependsOn: 'findGit')
 
             afterEvaluate {
                 // Configure the settings from our extension
+                tasks.findGit.submodule = extension.submodule
+
                 configure([tasks.applyPatches, tasks.makePatches]) {
                     repo = extension.target
                     root = extension.root
