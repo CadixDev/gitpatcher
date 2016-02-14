@@ -6,13 +6,13 @@ plugins {
     id 'idea'
 
     id 'maven-publish'
-    id 'com.gradle.plugin-publish' version '0.9.1'
+    id 'com.gradle.plugin-publish' version '0.9.3'
 
     id 'com.github.hierynomus.license' version '0.11.0'
 }
 
 group = 'net.minecrell'
-version = '0.7.2-SNAPSHOT'
+version = '0.8-SNAPSHOT'
 description = 'A Gradle plugin to manage patches for Git repositories'
 
 sourceCompatibility = 1.6
@@ -69,5 +69,5 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '2.11'
 }
