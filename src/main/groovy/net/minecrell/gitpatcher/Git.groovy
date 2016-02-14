@@ -95,7 +95,7 @@ class Git {
             if (type == String) {
                 setup(null, System.err)
                 execute()
-                return process.getInputStream().text
+                return process.inputStream.text
             }
         }
 

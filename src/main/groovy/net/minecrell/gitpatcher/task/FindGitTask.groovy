@@ -36,7 +36,7 @@ class FindGitTask extends DefaultTask {
             def version = (git.version() as String).readLines().join(', ')
             logger.lifecycle("Using $version for patching submodule $submodule.")
         } catch (Throwable e) {
-            throw new AssertionError(
+            throw new UnsupportedOperationException(
                     'Failed to verify Git version. Make sure running the Gradle build in an environment where Git is in your PATH.', e);
         }
     }
