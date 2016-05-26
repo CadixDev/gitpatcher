@@ -8,7 +8,7 @@ plugins {
     id 'maven-publish'
     id 'com.gradle.plugin-publish' version '0.9.4'
 
-    id 'com.github.hierynomus.license' version '0.11.0'
+    id 'net.minecrell.licenser' version '0.1.5'
 }
 
 group = 'net.minecrell'
@@ -23,14 +23,9 @@ dependencies {
 }
 
 license {
-    header file('LICENSE')
+    header = file('LICENSE')
     include '**/*.java'
     include '**/*.groovy'
-
-    strictCheck true
-    mapping {
-        java = 'SLASHSTAR_STYLE'
-    }
 }
 
 task sourceJar(type: Jar) {
