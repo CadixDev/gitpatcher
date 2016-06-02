@@ -32,7 +32,7 @@ class FindGitTask extends DefaultTask {
 
     @TaskAction
     void findGit() {
-        def git = new Git(project.projectDir)
+        def git = new Git(project.rootDir)
         try {
             def version = (git.version() as String).readLines().join(', ')
             logger.lifecycle("Using $version for patching submodule $submodule.")
