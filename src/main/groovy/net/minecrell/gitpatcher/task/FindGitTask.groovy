@@ -34,7 +34,7 @@ class FindGitTask extends DefaultTask {
     void findGit() {
         def git = new Git(project.rootDir)
         try {
-            def version = (git.version() as String).readLines().join(', ')
+            def version = git.version().text.readLines().join(', ')
             logger.lifecycle("Using $version for patching submodule $submodule.")
         } catch (Throwable e) {
             throw new UnsupportedOperationException(

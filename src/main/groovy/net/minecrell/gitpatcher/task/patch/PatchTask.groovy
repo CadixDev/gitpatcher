@@ -22,7 +22,6 @@
 
 package net.minecrell.gitpatcher.task.patch
 
-import com.google.common.collect.ImmutableList
 import net.minecrell.gitpatcher.task.SubmoduleTask
 
 abstract class PatchTask extends SubmoduleTask {

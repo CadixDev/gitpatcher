@@ -36,11 +36,11 @@ class Git {
     }
 
     String getStatus() {
-        return run('status', ['-z']) as String
+        return run('status', ['-z']).text
     }
 
     String getRef() {
-        return (rev_parse('HEAD') as String).readLines().first().trim()
+        return rev_parse('HEAD').text.readLines().first().trim()
     }
 
     Command run(String name, Object input) {
@@ -92,12 +92,15 @@ class Git {
         def rightShift = this.&writeTo
         def rightShiftUnsigned = this.&forceWriteTo
 
-        Object asType(Class type) {
-            if (type == String) {
-                setup(null, System.err)
-                execute()
-                return process.inputStream.text
-            }
+        String getText() {
+            setup(null, System.err)
+            execute()
+            return process.inputStream.text.trim()
+        }
+
+        String readText() {
+            setup(null, System.err)
+            return run() == 0 ? process.inputStream.text.trim() : null;
         }
 
     }

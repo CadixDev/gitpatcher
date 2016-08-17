@@ -34,7 +34,7 @@ class UpdateSubmodulesTask extends SubmoduleTask {
     @TaskAction
     void updateSubmodules() {
         def git = new Git(repo)
-        def result = git.submodule('status', '--', submodule) as String
+        def result = git.submodule('status', '--', submodule).text
 
         this.ref = result[1 .. result.indexOf(' ', 1) - 1]
 

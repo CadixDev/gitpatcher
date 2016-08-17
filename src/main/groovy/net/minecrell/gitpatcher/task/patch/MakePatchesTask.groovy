@@ -79,7 +79,7 @@ class MakePatchesTask extends PatchTask {
 
         didWork = false
         for (def patch : patches) {
-            def diff = (git.diff('--no-color', '-U1', '--staged', patch.absolutePath) as String).readLines()
+            def diff = git.diff('--no-color', '-U1', '--staged', patch.absolutePath).text.readLines()
 
             boolean upToDate = false
 

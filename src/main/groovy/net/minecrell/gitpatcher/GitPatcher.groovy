@@ -22,8 +22,8 @@
 
 package net.minecrell.gitpatcher
 
-import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
 import net.minecrell.gitpatcher.task.FindGitTask
+import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
 import net.minecrell.gitpatcher.task.patch.ApplyPatchesTask
 import net.minecrell.gitpatcher.task.patch.MakePatchesTask
 import org.gradle.api.Plugin

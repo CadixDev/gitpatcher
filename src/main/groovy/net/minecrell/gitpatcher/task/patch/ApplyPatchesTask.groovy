@@ -86,6 +86,11 @@ class ApplyPatchesTask extends PatchTask {
             assert patchDir.mkdirs(), 'Failed to create patch directory'
         }
 
+        if ('true'.equalsIgnoreCase(git.config('commit.gpgsign').readText())) {
+            logger.warn("Disabling GPG signing for the gitpatcher repository")
+            git.config('commit.gpgsign', 'false') >> out
+        }
+
         def patches = this.patches
         if (patches.length > 0) {
             logger.lifecycle 'Applying patches from {} to {}', patchDir, repo
