@@ -44,7 +44,7 @@ class Git {
     }
 
     Command run(String name, Object input) {
-        return new Command(['git', name.replace('_' as char, '-' as char), *input].execute(null as String[], repo))
+        return new Command(['git', '--no-pager', name.replace('_' as char, '-' as char), *input].execute(null as String[], repo))
     }
 
     @Override
@@ -57,7 +57,7 @@ class Git {
         final Process process
 
         private Command(Process process) {
-            this.process = process;
+            this.process = process
         }
 
         int run() {
@@ -94,13 +94,15 @@ class Git {
 
         String getText() {
             setup(null, System.err)
+            def text = process.inputStream.text.trim()
             execute()
-            return process.inputStream.text.trim()
+            return text
         }
 
         String readText() {
             setup(null, System.err)
-            return run() == 0 ? process.inputStream.text.trim() : null;
+            def text = process.inputStream.text.trim()
+            return run() == 0 ? text : null
         }
 
     }
