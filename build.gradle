@@ -8,7 +8,7 @@ plugins {
     id 'maven-publish'
     id 'com.gradle.plugin-publish' version '0.9.5'
 
-    id 'net.minecrell.licenser' version '0.2.1'
+    id 'net.minecrell.licenser' version '0.3'
 }
 
 group = 'net.minecrell'
@@ -64,5 +64,5 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+    gradleVersion = '3.3'
 }
