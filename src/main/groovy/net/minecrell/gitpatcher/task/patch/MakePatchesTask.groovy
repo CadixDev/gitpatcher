@@ -79,27 +79,8 @@ class MakePatchesTask extends PatchTask {
 
         didWork = false
         for (def patch : patches) {
-            def diff = git.diff('--no-color', '-U1', '--staged', patch.absolutePath).text.readLines()
-
-            boolean upToDate = false
-
-            if (diff.empty) {
-                upToDate = true
-            } else if (!diff.contains('--- /dev/null')) {
-                def first = diff.findIndexOf(HUNK)
-                if (first >= 0 && diff[first + 1].startsWith('From', 1)) {
-                    def last = diff.findLastIndexOf(HUNK)
-                    if (first == last) { // There is just one hunk, so probably just the hash changed
-                        upToDate = true
-                    } else if (last >= 0 && diff[last + 1].startsWith('--', 1)) {
-                        if (!diff.subList(first + 4, last).find(HUNK)) {
-                            upToDate = true
-                        }
-                    }
-                }
-            }
-
-            if (upToDate) {
+            List<String> diff = git.diff('--no-color', '-U1', '--staged', patch.absolutePath).text.readLines()
+            if (isUpToDate(diff)) {
                 logger.lifecycle 'Skipping {} (up-to-date)', patch.name
                 git.reset('HEAD', patch.absolutePath) >> null
                 git.checkout('--', patch.absolutePath) >> null
@@ -108,6 +89,37 @@ class MakePatchesTask extends PatchTask {
                 logger.lifecycle 'Generating {}', patch.name
             }
         }
+    }
+
+    private static boolean isUpToDate(List<String> diff) {
+        if (diff.empty) {
+            return true
+        }
+
+        if (diff.contains('--- /dev/null')) {
+            return false
+        }
+
+        // Check if there are max. 2 diff hunks (once for the hash, and once for the Git version)
+        def count = diff.count(HUNK)
+        if (count == 0) {
+            return true
+        }
+
+        if (count > 2) {
+            return false
+        }
+
+        for (def i = 0; i < diff.size(); i++) {
+            if (HUNK(diff[i])) {
+                def change = diff[i + 1]
+                if (!change.startsWith('From', 1) && !change.startsWith('--', 1)) {
+                    return false
+                }
+            }
+        }
+
+        return true
     }
 
 }
