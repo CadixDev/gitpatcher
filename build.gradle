@@ -12,14 +12,22 @@ plugins {
 }
 
 group = 'net.minecrell'
-version = '0.8.2-SNAPSHOT'
+version = '0.9.0-SNAPSHOT'
 description = 'A Gradle plugin to manage patches for Git repositories'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories {
+    jcenter()
+}
 
 dependencies {
-    compile localGroovy()
+    compileOnly'org.codehaus.groovy:groovy-all:2.4.7:indy'
+}
+
+tasks.withType(GroovyCompile) {
+    groovyOptions.optimizationOptions.indy = true
 }
 
 license {
