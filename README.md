@@ -9,7 +9,7 @@ the PATH is required for it to run.
 
   ```gradle
   plugins {
-      id 'net.minecrell.gitpatcher' version '0.8.1'
+      id 'net.minecrell.gitpatcher' version '0.9.0'
   }
   ```
 3. Configure gitpatcher:
