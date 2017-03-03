@@ -70,22 +70,13 @@ class Git {
             assert result == 0, 'Process returned error code'
         }
 
-        void setup(OutputStream out, OutputStream err) {
-            if (out) {
-                process.consumeProcessOutputStream(out)
-            }
-            if (err) {
-                process.consumeProcessErrorStream(err)
-            }
-        }
-
         void writeTo(OutputStream out) {
-            setup(out, System.err)
+            process.consumeProcessOutput(out, System.err)
             execute()
         }
 
         void forceWriteTo(OutputStream out) {
-            setup(out, out)
+            process.consumeProcessOutput(out, out)
             run()
         }
 
@@ -93,14 +84,14 @@ class Git {
         def rightShiftUnsigned = this.&forceWriteTo
 
         String getText() {
-            setup(null, System.err)
+            process.consumeProcessErrorStream((OutputStream) System.err)
             def text = process.inputStream.text.trim()
             execute()
             return text
         }
 
         String readText() {
-            setup(null, System.err)
+            process.consumeProcessErrorStream((OutputStream) System.err)
             def text = process.inputStream.text.trim()
             return run() == 0 ? text : null
         }
