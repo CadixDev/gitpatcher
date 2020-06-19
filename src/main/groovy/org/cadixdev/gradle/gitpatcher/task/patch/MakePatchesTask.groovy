@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task.patch
+package org.cadixdev.gradle.gitpatcher.task.patch
 
 import static java.lang.System.out
 
-import net.minecrell.gitpatcher.Git
+import org.cadixdev.gradle.gitpatcher.Git
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory

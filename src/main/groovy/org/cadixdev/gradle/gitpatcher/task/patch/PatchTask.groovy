@@ -20,9 +20,9 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task.patch
+package org.cadixdev.gradle.gitpatcher.task.patch
 
-import net.minecrell.gitpatcher.task.SubmoduleTask
+import org.cadixdev.gradle.gitpatcher.task.SubmoduleTask
 
 abstract class PatchTask extends SubmoduleTask {
 

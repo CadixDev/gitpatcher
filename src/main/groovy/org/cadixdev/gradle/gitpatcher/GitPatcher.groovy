@@ -20,12 +20,13 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher
+package org.cadixdev.gradle.gitpatcher
 
-import net.minecrell.gitpatcher.task.FindGitTask
-import net.minecrell.gitpatcher.task.UpdateSubmodulesTask
-import net.minecrell.gitpatcher.task.patch.ApplyPatchesTask
-import net.minecrell.gitpatcher.task.patch.MakePatchesTask
+
+import org.cadixdev.gradle.gitpatcher.task.FindGitTask
+import org.cadixdev.gradle.gitpatcher.task.UpdateSubmodulesTask
+import org.cadixdev.gradle.gitpatcher.task.patch.ApplyPatchesTask
+import org.cadixdev.gradle.gitpatcher.task.patch.MakePatchesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

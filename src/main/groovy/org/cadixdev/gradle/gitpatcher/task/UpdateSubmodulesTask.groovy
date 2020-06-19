@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task
+package org.cadixdev.gradle.gitpatcher.task
 
 import static java.lang.System.out
 
-import net.minecrell.gitpatcher.Git
+import org.cadixdev.gradle.gitpatcher.Git
 import org.gradle.api.tasks.TaskAction
 
 class UpdateSubmodulesTask extends SubmoduleTask {

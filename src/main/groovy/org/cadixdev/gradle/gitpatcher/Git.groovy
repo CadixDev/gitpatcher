@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher
+package org.cadixdev.gradle.gitpatcher
 
 class Git {
 

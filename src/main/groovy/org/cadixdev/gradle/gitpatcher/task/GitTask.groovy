@@ -20,26 +20,12 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task
+package org.cadixdev.gradle.gitpatcher.task
 
-import net.minecrell.gitpatcher.Git
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.TaskAction
 
-class FindGitTask extends DefaultTask {
+abstract class GitTask extends DefaultTask {
 
-    String submodule
-
-    @TaskAction
-    void findGit() {
-        def git = new Git(project.rootDir)
-        try {
-            def version = git.version().text.readLines().join(', ')
-            logger.lifecycle("Using $version for patching submodule $submodule.")
-        } catch (Throwable e) {
-            throw new UnsupportedOperationException(
-                    'Failed to verify Git version. Make sure running the Gradle build in an environment where Git is in your PATH.', e);
-        }
-    }
+    File repo
 
 }

@@ -20,12 +20,14 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task
+package org.cadixdev.gradle.gitpatcher.task
 
-import org.gradle.api.DefaultTask
+abstract class SubmoduleTask extends GitTask {
 
-abstract class GitTask extends DefaultTask {
+    String submodule
 
-    File repo
+    {
+        onlyIf { submodule != null }
+    }
 
 }

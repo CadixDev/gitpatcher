@@ -20,14 +20,16 @@
  * THE SOFTWARE.
  */
 
-package net.minecrell.gitpatcher.task
+package org.cadixdev.gradle.gitpatcher
 
-abstract class SubmoduleTask extends GitTask {
+class PatchExtension {
+
+    File root
 
     String submodule
 
-    {
-        onlyIf { submodule != null }
-    }
+    File target
+
+    File patches
 
 }
