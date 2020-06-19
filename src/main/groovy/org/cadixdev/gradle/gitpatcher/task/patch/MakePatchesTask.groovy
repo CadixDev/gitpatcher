@@ -34,6 +34,8 @@ class MakePatchesTask extends PatchTask {
 
     private static final Closure HUNK = { it.startsWith('@@') }
 
+    String[] formatPatchArgs
+
     @Override @InputDirectory
     File getRepo() {
         return super.getRepo()
@@ -72,7 +74,7 @@ class MakePatchesTask extends PatchTask {
         }
 
         def git = new Git(repo)
-        git.format_patch('--no-stat', '-N', '-o', patchDir.absolutePath, 'origin/upstream') >> null
+        git.format_patch(formatPatchArgs + ['-o', patchDir.absolutePath, 'origin/upstream']) >> null
 
         git.repo = root
         git.add('-A', patchDir.absolutePath) >> out

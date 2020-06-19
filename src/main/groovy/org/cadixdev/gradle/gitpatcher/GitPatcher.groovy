@@ -58,6 +58,10 @@ class GitPatcher implements Plugin<Project> {
                     patchDir = extension.patches
                 }
 
+                tasks.makePatches.with {
+                    formatPatchArgs = extension.formatPatchArgs
+                }
+
                 tasks.applyPatches.updateTask = tasks.updateSubmodules
 
                 tasks.updateSubmodules.with {

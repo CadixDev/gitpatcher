@@ -32,4 +32,11 @@ class PatchExtension {
 
     File patches
 
+    /**
+     * Additional arguments to pass to the Git when formatting patch files,
+     * allowing for the patches produced by gitpatcher to be controlled more
+     * directly - defaults to {@code ['--no-stat', '-N']}.
+     */
+    String[] formatPatchArgs = ['--no-stat', '-N']
+
 }
