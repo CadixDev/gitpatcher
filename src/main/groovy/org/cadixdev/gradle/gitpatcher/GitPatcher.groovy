@@ -44,7 +44,7 @@ class GitPatcher implements Plugin<Project> {
 
             task('findGit', type: FindGitTask)
             task('updateSubmodules', type: UpdateSubmodulesTask, dependsOn: 'findGit')
-            task('applyPatches', type: ApplyPatchesTask, dependsOn: 'updateSubmodules')
+            task('applyPatches', type: ApplyPatchesTask)
             task('makePatches', type: MakePatchesTask, dependsOn: 'findGit')
 
             afterEvaluate {
@@ -62,6 +62,9 @@ class GitPatcher implements Plugin<Project> {
                     formatPatchArgs = extension.formatPatchArgs
                 }
 
+                if (extension.updateOnApply) {
+                    tasks.applyPatches.dependsOn('updateSubmodules')
+                }
                 tasks.applyPatches.updateTask = tasks.updateSubmodules
 
                 tasks.updateSubmodules.with {

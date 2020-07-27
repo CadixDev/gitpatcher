@@ -39,4 +39,10 @@ class PatchExtension {
      */
     String[] formatPatchArgs = ['--no-stat', '-N']
 
+    /**
+     * Determines whether {@code "applyPatches"} will depend on the
+     * {@code "updateSubmodules"} task - defaults to {@code true}.
+     */
+    boolean updateOnApply = true;
+
 }
