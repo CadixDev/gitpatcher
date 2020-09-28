@@ -39,4 +39,12 @@ class PatchExtension {
      */
     String[] formatPatchArgs = ['--no-stat', '-N']
 
+    /**
+     * Applies our recommended additional arguments for Git when formatting
+     * patch files - currently {@code ['--zero-commit', '--full-index', '--no-signature']}.
+     */
+    void recommendedFormatPatchArgs() {
+        formatPatchArgs += ['--zero-commit', '--full-index', '--no-signature']
+    }
+
 }

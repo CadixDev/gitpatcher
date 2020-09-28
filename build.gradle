@@ -2,6 +2,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'groovy'
 
+    id 'maven-publish'
     id 'com.gradle.plugin-publish' version '0.9.10'
 
     id 'net.minecrell.licenser' version '0.4.1'
@@ -35,7 +36,7 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
 
 gradlePlugin {
     plugins {
-        licenser {
+        gitpatcher {
             id = 'org.cadixdev.gitpatcher'
             implementationClass = 'org.cadixdev.gradle.gitpatcher.GitPatcher'
         }
@@ -49,7 +50,7 @@ pluginBundle {
     tags = ['git']
 
     plugins {
-        licenserPlugin {
+        gitpatcherPlugin {
             id = 'org.cadixdev.gitpatcher'
             displayName = 'gitpatcher'
         }

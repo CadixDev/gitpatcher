@@ -25,6 +25,7 @@ package org.cadixdev.gradle.gitpatcher.task.patch
 import static java.lang.System.out
 
 import org.cadixdev.gradle.gitpatcher.Git
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
@@ -34,6 +35,7 @@ class MakePatchesTask extends PatchTask {
 
     private static final Closure HUNK = { it.startsWith('@@') }
 
+    @Input
     String[] formatPatchArgs
 
     @Override @InputDirectory
@@ -74,7 +76,7 @@ class MakePatchesTask extends PatchTask {
         }
 
         def git = new Git(repo)
-        git.format_patch(formatPatchArgs + ['-o', patchDir.absolutePath, 'origin/upstream']) >> null
+        git.format_patch(*formatPatchArgs, '-o', patchDir.absolutePath, 'origin/upstream') >> null
 
         git.repo = root
         git.add('-A', patchDir.absolutePath) >> out
