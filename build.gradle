@@ -3,9 +3,9 @@ plugins {
     id 'groovy'
 
     id 'maven-publish'
-    id 'com.gradle.plugin-publish' version '0.9.10'
+    id 'com.gradle.plugin-publish' version '0.15.0'
 
-    id 'net.minecrell.licenser' version '0.4.1'
+    id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 sourceCompatibility = '1.8'
@@ -24,12 +24,13 @@ license {
     include '**/*.groovy'
 }
 
-task sourceJar(type: Jar) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
-task groovydocJar(type: Jar, dependsOn: groovydoc) {
+tasks.named('javadocJar', Jar).configure {
+    dependsOn 'groovydoc'
     archiveClassifier = 'groovydoc'
     from groovydoc.destinationDir
 }
@@ -41,6 +42,9 @@ gradlePlugin {
             implementationClass = 'org.cadixdev.gradle.gitpatcher.GitPatcher'
         }
     }
+}
+validatePlugins {
+    failOnWarning = false // abstract classes should be ok without annotations?
 }
 
 pluginBundle {

@@ -22,12 +22,15 @@
 
 package org.cadixdev.gradle.gitpatcher.task
 
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+
 abstract class SubmoduleTask extends GitTask {
 
+    @Input
     String submodule
 
     {
         onlyIf { submodule != null }
     }
-
 }

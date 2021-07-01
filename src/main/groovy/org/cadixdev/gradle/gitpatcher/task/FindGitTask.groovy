@@ -24,10 +24,12 @@ package org.cadixdev.gradle.gitpatcher.task
 
 import org.cadixdev.gradle.gitpatcher.Git
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class FindGitTask extends DefaultTask {
+abstract class FindGitTask extends DefaultTask {
 
+    @Input
     String submodule
 
     @TaskAction
