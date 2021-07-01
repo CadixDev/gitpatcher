@@ -22,7 +22,7 @@
 
 package org.cadixdev.gradle.gitpatcher
 
-
+import groovy.transform.CompileStatic
 import org.cadixdev.gradle.gitpatcher.task.FindGitTask
 import org.cadixdev.gradle.gitpatcher.task.UpdateSubmodulesTask
 import org.cadixdev.gradle.gitpatcher.task.patch.ApplyPatchesTask
@@ -72,10 +72,12 @@ class GitPatcher implements Plugin<Project> {
         }
     }
 
+    @CompileStatic
     Project getProject() {
         return project
     }
 
+    @CompileStatic
     PatchExtension getExtension() {
         return extension
     }

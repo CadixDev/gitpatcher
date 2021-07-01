@@ -22,6 +22,7 @@
 
 package org.cadixdev.gradle.gitpatcher.task.patch
 
+import groovy.transform.CompileStatic
 import org.cadixdev.gradle.gitpatcher.task.SubmoduleTask
 import org.gradle.api.tasks.Internal
 
@@ -34,7 +35,7 @@ abstract class PatchTask extends SubmoduleTask {
 
     protected File[] getPatches() {
         if (!patchDir.directory) {
-            return []
+            return new File[0]
         }
 
         return patchDir.listFiles({ dir, name -> name.endsWith('.patch') } as FilenameFilter).sort()
@@ -56,6 +57,7 @@ abstract class PatchTask extends SubmoduleTask {
 
     private List<String> cachedRefs
 
+    @CompileStatic
     private void readCache() {
         if (cachedRefs == null) {
             File refCache = this.refCache
@@ -65,7 +67,7 @@ abstract class PatchTask extends SubmoduleTask {
                     !trimmed.empty && !trimmed.startsWith('#') ? trimmed : null
                 }.asList().asImmutable()
             } else {
-                this.cachedRefs = [].asImmutable()
+                this.cachedRefs = Collections.emptyList()
             }
         }
     }

@@ -22,6 +22,9 @@
 
 package org.cadixdev.gradle.gitpatcher
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class PatchExtension {
 
     File root

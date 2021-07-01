@@ -22,6 +22,8 @@
 
 package org.cadixdev.gradle.gitpatcher
 
+import groovy.transform.CompileStatic
+
 class Git {
 
     File repo
@@ -52,6 +54,7 @@ class Git {
         return run(name, input)
     }
 
+    @CompileStatic
     static class Command {
 
         final Process process

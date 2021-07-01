@@ -24,6 +24,7 @@ package org.cadixdev.gradle.gitpatcher.task
 
 import static java.lang.System.out
 
+import groovy.transform.CompileStatic
 import org.cadixdev.gradle.gitpatcher.Git
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal

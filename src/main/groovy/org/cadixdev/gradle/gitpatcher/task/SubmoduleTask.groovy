@@ -22,9 +22,10 @@
 
 package org.cadixdev.gradle.gitpatcher.task
 
+import groovy.transform.CompileStatic
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 
+@CompileStatic
 abstract class SubmoduleTask extends GitTask {
 
     @Input
