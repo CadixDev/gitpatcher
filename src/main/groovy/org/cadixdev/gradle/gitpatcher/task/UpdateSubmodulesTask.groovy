@@ -25,10 +25,12 @@ package org.cadixdev.gradle.gitpatcher.task
 import static java.lang.System.out
 
 import org.cadixdev.gradle.gitpatcher.Git
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class UpdateSubmodulesTask extends SubmoduleTask {
 
+    @Internal
     private String ref
 
     @TaskAction
