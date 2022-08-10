@@ -23,9 +23,11 @@
 package org.cadixdev.gradle.gitpatcher.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 
 abstract class GitTask extends DefaultTask {
 
+    @Internal
     File repo
 
 }

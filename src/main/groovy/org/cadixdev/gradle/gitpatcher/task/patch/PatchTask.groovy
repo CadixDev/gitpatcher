@@ -23,13 +23,19 @@
 package org.cadixdev.gradle.gitpatcher.task.patch
 
 import org.cadixdev.gradle.gitpatcher.task.SubmoduleTask
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFiles
 
 abstract class PatchTask extends SubmoduleTask {
 
+    @OutputDirectory
     File root
 
+    @OutputDirectory
     File patchDir
 
+    @OutputFiles
     protected File[] getPatches() {
         if (!patchDir.directory) {
             return []
@@ -38,14 +44,17 @@ abstract class PatchTask extends SubmoduleTask {
         return patchDir.listFiles({ dir, name -> name.endsWith('.patch') } as FilenameFilter).sort()
     }
 
+    @Internal
     File getSubmoduleRoot() {
         return new File(root, submodule)
     }
 
+    @Internal
     File getGitDir() {
         return new File(repo, '.git')
     }
 
+    @Internal
     File getRefCache() {
         return new File(gitDir, '.gitpatcher_ref')
     }
@@ -66,11 +75,13 @@ abstract class PatchTask extends SubmoduleTask {
         }
     }
 
+    @Internal
     String getCachedRef() {
         readCache()
         return cachedRefs[0]
     }
 
+    @Internal
     String getCachedSubmoduleRef() {
         readCache()
         return cachedRefs[1]

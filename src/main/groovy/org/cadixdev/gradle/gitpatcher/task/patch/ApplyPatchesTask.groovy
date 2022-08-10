@@ -27,12 +27,14 @@ import static java.lang.System.out
 import org.cadixdev.gradle.gitpatcher.Git
 import org.cadixdev.gradle.gitpatcher.task.UpdateSubmodulesTask
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class ApplyPatchesTask extends PatchTask {
 
+    @Internal
     UpdateSubmodulesTask updateTask
 
     @Override @InputFiles
